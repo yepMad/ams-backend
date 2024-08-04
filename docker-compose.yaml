@@ -1,0 +1,14 @@
+version: '2'
+
+services:
+  postgresql:
+    container_name: ams-postgresql
+    image: bitnami/postgresql:latest
+    restart: unless-stopped
+    ports:
+      - ${PGSQL_PORT}:5432
+    environment:
+      - POSTGRESQL_POSTGRES_PASSWORD=${PGSQL_POSTGRES_PASSWORD}
+      - POSTGRESQL_USERNAME=${PGSQL_USERNAME}
+      - POSTGRES_PASSWORD=${PGSQL_PASSWORD}
+      - POSTGRESQL_DATABASE=${PGSQL_DATABASE}
