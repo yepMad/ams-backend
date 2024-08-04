@@ -12,3 +12,111 @@ datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
+
+model User {
+  id String @id @default(uuid()) @db.Uuid
+
+  email    String @unique
+  password String
+
+  role       Role              @default(USER)
+  employeeOf CompanyEmployee[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Company {
+  id String @id @default(uuid()) @db.Uuid
+
+  name String
+  cnpj String @unique
+
+  categories    CompanyCategory[]
+  subcategories CompanySubcategory[]
+
+  profile   CompanyProfile?
+  employees CompanyEmployee[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model CompanyEmployee {
+  user   User   @relation(fields: [userId], references: [id], onUpdate: Cascade, onDelete: Cascade)
+  userId String @db.Uuid
+
+  company   Company @relation(fields: [companyId], references: [id], onUpdate: Cascade, onDelete: Cascade)
+  companyId String  @db.Uuid
+
+  createdAt DateTime @default(now())
+
+  @@id([userId, companyId])
+}
+
+model CompanyCategory {
+  id          String @id @default(uuid()) @db.Uuid
+  index       Int
+  name        String
+  bannerImage String
+
+  companies Company[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model CompanySubcategory {
+  id   String @id @default(uuid()) @db.Uuid
+  name String
+
+  companies Company[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model CompanyProfile {
+  displayName String
+  promoText   String?
+  description String?
+
+  assets CompanyProfileAsset[]
+
+  profileImage String?
+  bannerImage  String?
+
+  whatsapp  String?
+  instagram String?
+  location  String?
+
+  company   Company @relation(fields: [companyId], references: [id], onUpdate: Cascade, onDelete: Cascade)
+  companyId String  @id @db.Uuid
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model CompanyProfileAsset {
+  id String @id @default(uuid()) @db.Uuid
+
+  index Int
+  type  AssetType
+  path  String
+
+  companyProfile CompanyProfile @relation(fields: [companyId], references: [companyId], onUpdate: Cascade, onDelete: Cascade)
+  companyId      String         @db.Uuid
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+enum AssetType {
+  IMAGE
+  VIDEO
+}
+
+enum Role {
+  USER
+  ADMIN
+}
